@@ -194,7 +194,7 @@ async function isInGuild(guildId) {
 
 // get bot invite url
 function getBotInviteUrl() {
-  const permissions = '68608'; // read messages, send messages, embed links, attach files
+  const permissions = '117760'; // view channels, send messages, embed links, attach files, read message history
   return `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&permissions=${permissions}&scope=bot`;
 }
 
@@ -205,7 +205,7 @@ function getOAuthUrl(state) {
     redirect_uri: `${process.env.BASE_URL}/auth/discord/callback`,
     response_type: 'code',
     scope: 'bot guilds',
-    permissions: '68608',
+    permissions: '117760',
     state,
   });
   return `https://discord.com/api/oauth2/authorize?${params}`;
