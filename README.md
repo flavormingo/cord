@@ -10,5 +10,8 @@ a lightweight message relay that mirrors messages between slack and discord text
 4. map channels
 5. chat away
 
+> [!IMPORTANT]
+> make sure to run `/invite @cord` on any mapped slack channels
+
 ## credits
 made with love by [zany.digital](https://zany.digital)
