@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'berkeley';
-  src: url('https://zany.digital/font/berkeley.woff2') format('woff2'),
-       url('https://zany.digital/font/berkeley.ttf') format('truetype');
+  src: url('/font/berkeley.woff2') format('woff2'),
+       url('/font/berkeley.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
