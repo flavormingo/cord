@@ -41,30 +41,34 @@
     <section class="section">
       <h2 class="section-title">channel mappings</h2>
       <div class="mapping-form">
-        <div class="form-group">
-          <label>slack workspace</label>
-          <select id="slack-workspace">
-            <option value="">select workspace</option>
-          </select>
+        <div class="form-row">
+          <div class="form-group">
+            <label>slack workspace</label>
+            <select id="slack-workspace">
+              <option value="">select workspace</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>slack channel</label>
+            <select id="slack-channel" disabled>
+              <option value="">select channel</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label>slack channel</label>
-          <select id="slack-channel" disabled>
-            <option value="">select channel</option>
-          </select>
-        </div>
-        <span class="arrow">↔</span>
-        <div class="form-group">
-          <label>discord server</label>
-          <select id="discord-guild">
-            <option value="">select server</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>discord channel</label>
-          <select id="discord-channel" disabled>
-            <option value="">select channel</option>
-          </select>
+        <div class="form-arrow">↔</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>discord server</label>
+            <select id="discord-guild">
+              <option value="">select server</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>discord channel</label>
+            <select id="discord-channel" disabled>
+              <option value="">select channel</option>
+            </select>
+          </div>
         </div>
         <button id="add-mapping" class="add-btn" disabled>add</button>
       </div>
