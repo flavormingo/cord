@@ -188,19 +188,24 @@ h1 {
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr auto 1fr;
   gap: 0.75rem;
+  align-items: end;
 }
 
 .form-arrow {
-  text-align: center;
   color: var(--text-secondary);
   font-size: 1.25rem;
+  padding-bottom: 0.6rem;
 }
 
 @media (max-width: 600px) {
   .form-row {
     grid-template-columns: 1fr;
+  }
+  .form-arrow {
+    text-align: center;
+    padding-bottom: 0;
   }
 }
 
