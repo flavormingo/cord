@@ -503,6 +503,10 @@ footer {
   border-top: 1px solid var(--border-subtle);
   color: var(--text-tertiary);
   font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
 }
 
 footer a {
@@ -513,6 +517,15 @@ footer a {
 
 footer a:hover {
   color: var(--accent);
+}
+
+.github-link {
+  display: inline-flex;
+  color: var(--text-tertiary);
+}
+
+.github-link:hover {
+  color: var(--text);
 }
 
 /* loading spinner */
