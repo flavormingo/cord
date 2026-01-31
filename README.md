@@ -4,7 +4,7 @@ a lightweight message relay that mirrors messages between slack and discord text
 
 ## setup
 
-1. visit [cord.zany.digital](https://cord.zany.digital)
+1. visit [cord.mazz.digital](https://cord.mazz.digital)
 2. connect your slack workspace
 3. connect your discord server
 4. map channels
@@ -14,4 +14,4 @@ a lightweight message relay that mirrors messages between slack and discord text
 > make sure to run `/invite @cord` on any mapped slack channels
 
 ## credits
-made with love by [zany.digital](https://zany.digital)
+made with love by [mazz.digital](https://mazz.digital)
