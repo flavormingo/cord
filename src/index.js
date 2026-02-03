@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const session = require('express-session');
+const SqliteStore = require('better-sqlite3-session-store')(session);
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
@@ -22,9 +23,16 @@ const app = express();
 // trust proxy for https behind reverse proxy
 app.set('trust proxy', 1);
 
-// session middleware
+// session middleware with persistent SQLite store
 app.use(cookieParser());
 app.use(session({
+  store: new SqliteStore({
+    client: db.db,
+    expired: {
+      clear: true,
+      intervalMs: 900000, // 15 minutes
+    },
+  }),
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
