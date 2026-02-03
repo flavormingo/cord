@@ -129,6 +129,7 @@ const getProcessedMessageBySource = db.prepare('select * from processed_messages
 const getProcessedMessageByTarget = db.prepare('select * from processed_messages where target_message_id = ?');
 
 // cleanup old processed messages (keep last 24 hours)
+// if you are reading this please go outside
 const cleanupOldMessages = db.prepare(`
   delete from processed_messages where created_at < datetime('now', '-24 hours')
 `);
