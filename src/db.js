@@ -95,6 +95,7 @@ const getSlackWorkspace = db.prepare('select * from slack_workspaces where id = 
 const getSlackWorkspaceByTeam = db.prepare('select * from slack_workspaces where team_id = ?');
 const getSlackWorkspacesByUser = db.prepare('select * from slack_workspaces where user_id = ?');
 const deleteSlackWorkspace = db.prepare('delete from slack_workspaces where id = ?');
+const updateMappingsUserBySlackWorkspace = db.prepare('update channel_mappings set user_id = ? where slack_workspace_id = ?');
 
 // discord guild operations
 const createDiscordGuild = db.prepare(`
@@ -108,6 +109,7 @@ const getDiscordGuild = db.prepare('select * from discord_guilds where id = ?');
 const getDiscordGuildByGuildId = db.prepare('select * from discord_guilds where guild_id = ?');
 const getDiscordGuildsByUser = db.prepare('select * from discord_guilds where user_id = ?');
 const deleteDiscordGuild = db.prepare('delete from discord_guilds where id = ?');
+const updateMappingsUserByDiscordGuild = db.prepare('update channel_mappings set user_id = ? where discord_guild_id = ?');
 
 // channel mapping operations
 const createChannelMapping = db.prepare(`
@@ -149,6 +151,7 @@ module.exports = {
     getByTeam: (teamId) => getSlackWorkspaceByTeam.get(teamId),
     getByUser: (userId) => getSlackWorkspacesByUser.all(userId),
     delete: (id) => deleteSlackWorkspace.run(id),
+    updateMappingsUser: (userId, workspaceId) => updateMappingsUserBySlackWorkspace.run(userId, workspaceId),
   },
   discordGuilds: {
     create: (id, userId, guildId, guildName) =>
@@ -157,6 +160,7 @@ module.exports = {
     getByGuildId: (guildId) => getDiscordGuildByGuildId.get(guildId),
     getByUser: (userId) => getDiscordGuildsByUser.all(userId),
     delete: (id) => deleteDiscordGuild.run(id),
+    updateMappingsUser: (userId, guildId) => updateMappingsUserByDiscordGuild.run(userId, guildId),
   },
   channelMappings: {
     create: (id, userId, slackWorkspaceId, slackChannelId, slackChannelName, discordGuildId, discordChannelId, discordChannelName) =>
