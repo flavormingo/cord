@@ -86,6 +86,7 @@ const createSlackWorkspace = db.prepare(`
   insert into slack_workspaces (id, user_id, team_id, team_name, access_token, bot_user_id)
   values (?, ?, ?, ?, ?, ?)
   on conflict(team_id) do update set
+    user_id = excluded.user_id,
     access_token = excluded.access_token,
     team_name = excluded.team_name,
     bot_user_id = excluded.bot_user_id
@@ -100,6 +101,7 @@ const createDiscordGuild = db.prepare(`
   insert into discord_guilds (id, user_id, guild_id, guild_name)
   values (?, ?, ?, ?)
   on conflict(guild_id) do update set
+    user_id = excluded.user_id,
     guild_name = excluded.guild_name
 `);
 const getDiscordGuild = db.prepare('select * from discord_guilds where id = ?');
