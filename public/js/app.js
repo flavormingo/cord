@@ -1,10 +1,8 @@
-// state
 let workspaces = { slack: [], discord: [] };
 let slackChannels = [];
 let discordChannels = [];
 let mappings = [];
 
-// dom elements
 const slackList = document.getElementById('slack-list');
 const discordList = document.getElementById('discord-list');
 const slackWorkspaceSelect = document.getElementById('slack-workspace');
@@ -14,7 +12,6 @@ const discordChannelSelect = document.getElementById('discord-channel');
 const addMappingBtn = document.getElementById('add-mapping');
 const mappingsList = document.getElementById('mappings-list');
 
-// fetch helper
 async function api(method, path, body) {
   const options = {
     method,
@@ -31,7 +28,6 @@ async function api(method, path, body) {
   return res.json();
 }
 
-// show toast notification
 function showToast(message, type = 'success') {
   const existing = document.querySelector('.toast');
   if (existing) existing.remove();
@@ -44,9 +40,7 @@ function showToast(message, type = 'success') {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// render connected workspaces
 function renderWorkspaces() {
-  // slack
   if (workspaces.slack.length === 0) {
     slackList.innerHTML = `
       <a href="/auth/slack" class="connect-btn slack">
@@ -72,7 +66,6 @@ function renderWorkspaces() {
     `;
   }
 
-  // discord
   if (workspaces.discord.length === 0) {
     discordList.innerHTML = `
       <a href="/auth/discord" class="connect-btn discord">
@@ -98,26 +91,20 @@ function renderWorkspaces() {
     `;
   }
 
-  // add disconnect handlers
   document.querySelectorAll('.disconnect-btn').forEach(btn => {
     btn.addEventListener('click', handleDisconnect);
   });
 
-  // update selects
   updateSelects();
 }
 
-// update channel mapping selects
 function updateSelects() {
-  // slack workspaces
   slackWorkspaceSelect.innerHTML = '<option value="">select workspace</option>' +
     workspaces.slack.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
 
-  // discord guilds
   discordGuildSelect.innerHTML = '<option value="">select server</option>' +
     workspaces.discord.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
 
-  // reset channel selects
   slackChannelSelect.innerHTML = '<option value="">select channel</option>';
   discordChannelSelect.innerHTML = '<option value="">select channel</option>';
   slackChannelSelect.disabled = true;
@@ -126,7 +113,6 @@ function updateSelects() {
   updateAddButton();
 }
 
-// fetch slack channels when workspace selected
 async function onSlackWorkspaceChange() {
   const workspaceId = slackWorkspaceSelect.value;
   if (!workspaceId) {
@@ -152,7 +138,6 @@ async function onSlackWorkspaceChange() {
   updateAddButton();
 }
 
-// fetch discord channels when guild selected
 async function onDiscordGuildChange() {
   const guildId = discordGuildSelect.value;
   if (!guildId) {
@@ -178,7 +163,6 @@ async function onDiscordGuildChange() {
   updateAddButton();
 }
 
-// update add button state
 function updateAddButton() {
   const canAdd = slackWorkspaceSelect.value &&
     slackChannelSelect.value &&
@@ -187,7 +171,6 @@ function updateAddButton() {
   addMappingBtn.disabled = !canAdd;
 }
 
-// add mapping
 async function handleAddMapping() {
   const slackOption = slackChannelSelect.selectedOptions[0];
   const discordOption = discordChannelSelect.selectedOptions[0];
@@ -205,7 +188,6 @@ async function handleAddMapping() {
     renderMappings();
     showToast('mapping created');
 
-    // reset selects
     slackChannelSelect.value = '';
     discordChannelSelect.value = '';
     updateAddButton();
@@ -214,7 +196,6 @@ async function handleAddMapping() {
   }
 }
 
-// render mappings
 function renderMappings() {
   if (mappings.length === 0) {
     mappingsList.innerHTML = '<div class="empty-state">no channel mappings yet</div>';
@@ -237,7 +218,6 @@ function renderMappings() {
     </div>
   `).join('');
 
-  // add handlers
   document.querySelectorAll('.toggle-btn').forEach(btn => {
     btn.addEventListener('click', handleToggle);
   });
@@ -246,7 +226,6 @@ function renderMappings() {
   });
 }
 
-// toggle mapping
 async function handleToggle(e) {
   const id = e.target.dataset.id;
   const mapping = mappings.find(m => m.id === id);
@@ -262,7 +241,6 @@ async function handleToggle(e) {
   }
 }
 
-// delete mapping
 async function handleDelete(e) {
   const id = e.target.dataset.id;
   if (!confirm('are you sure you want to delete this mapping?')) return;
@@ -277,7 +255,6 @@ async function handleDelete(e) {
   }
 }
 
-// disconnect workspace/guild
 async function handleDisconnect(e) {
   const type = e.target.dataset.type;
   const id = e.target.dataset.id;
@@ -290,7 +267,6 @@ async function handleDisconnect(e) {
     } else {
       workspaces.discord = workspaces.discord.filter(g => g.id !== id);
     }
-    // remove related mappings from ui
     if (type === 'slack') {
       mappings = mappings.filter(m => m.slack_workspace_id !== id);
     } else {
@@ -304,25 +280,20 @@ async function handleDisconnect(e) {
   }
 }
 
-// init
 async function init() {
   try {
-    // load workspaces
     workspaces = await api('GET', '/workspaces');
     renderWorkspaces();
 
-    // load mappings
     mappings = await api('GET', '/mappings');
     renderMappings();
 
-    // add event listeners
     slackWorkspaceSelect.addEventListener('change', onSlackWorkspaceChange);
     discordGuildSelect.addEventListener('change', onDiscordGuildChange);
     slackChannelSelect.addEventListener('change', updateAddButton);
     discordChannelSelect.addEventListener('change', updateAddButton);
     addMappingBtn.addEventListener('click', handleAddMapping);
 
-    // check for url params
     const params = new URLSearchParams(window.location.search);
     if (params.get('slack') === 'connected') {
       showToast('slack workspace connected');
@@ -332,7 +303,6 @@ async function init() {
       showToast(params.get('error').replace(/_/g, ' '), 'error');
     }
 
-    // clean url
     if (params.toString()) {
       window.history.replaceState({}, '', '/');
     }

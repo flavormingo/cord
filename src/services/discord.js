@@ -5,7 +5,6 @@ const { v4: uuidv4 } = require('uuid');
 
 let slackService = null;
 
-// create discord client
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -14,12 +13,10 @@ const client = new Client({
   ],
 });
 
-// set slack service reference (to avoid circular dependency)
 function setSlackService(service) {
   slackService = service;
 }
 
-// initialize discord bot
 async function init() {
   return new Promise((resolve, reject) => {
     client.once('ready', () => {
@@ -35,43 +32,33 @@ async function init() {
   });
 }
 
-// handle incoming discord messages
 client.on('messageCreate', async (message) => {
   try {
-    // ignore bot messages
     if (message.author.bot) return;
 
-    // ignore non-text channels
     if (message.channel.type !== ChannelType.GuildText) return;
 
-    // check if this message was already processed (relayed from slack)
     const processed = db.processedMessages.getByTarget(message.id);
     if (processed) return;
 
-    // find mappings for this channel
     const mappings = db.channelMappings.getByDiscordChannel(message.channel.id);
     if (!mappings || mappings.length === 0) return;
 
-    // build user map for formatting
     const discordUsers = {};
     message.mentions.users.forEach((user) => {
       discordUsers[user.id] = user.username;
     });
 
-    // convert message content
     const content = discordToSlack(message.content, discordUsers);
 
-    // get author info
     const author = message.member?.displayName || message.author.username;
     const avatarUrl = message.author.displayAvatarURL({ format: 'png', size: 64 });
 
-    // relay to each mapped slack channel
     for (const mapping of mappings) {
       const workspace = db.slackWorkspaces.get(mapping.slack_workspace_id);
       if (!workspace) continue;
 
       try {
-        // build slack message
         const slackMessage = {
           channel: mapping.slack_channel_id,
           username: `${author} (discord)`,
@@ -81,7 +68,6 @@ client.on('messageCreate', async (message) => {
           unfurl_media: true,
         };
 
-        // handle attachments
         const attachments = [];
         for (const attachment of message.attachments.values()) {
           attachments.push({
@@ -96,7 +82,6 @@ client.on('messageCreate', async (message) => {
           slackMessage.attachments = attachments;
         }
 
-        // handle embeds (links, etc)
         for (const embed of message.embeds) {
           if (embed.url) {
             attachments.push({
@@ -108,11 +93,9 @@ client.on('messageCreate', async (message) => {
           }
         }
 
-        // send to slack
         if (slackService) {
           const result = await slackService.sendMessage(workspace.access_token, slackMessage);
 
-          // record processed message
           if (result && result.ts) {
             db.processedMessages.create(
               uuidv4(),
@@ -132,7 +115,6 @@ client.on('messageCreate', async (message) => {
   }
 });
 
-// send message to discord channel
 async function sendMessage(channelId, options) {
   try {
     const channel = await client.channels.fetch(channelId);
@@ -148,7 +130,6 @@ async function sendMessage(channelId, options) {
   }
 }
 
-// get guild info
 async function getGuild(guildId) {
   try {
     const guild = await client.guilds.fetch(guildId);
@@ -162,7 +143,6 @@ async function getGuild(guildId) {
   }
 }
 
-// get text channels for a guild
 async function getTextChannels(guildId) {
   try {
     const guild = await client.guilds.fetch(guildId);
@@ -181,7 +161,6 @@ async function getTextChannels(guildId) {
   }
 }
 
-// check if bot is in guild
 async function isInGuild(guildId) {
   try {
     await client.guilds.fetch(guildId);
@@ -191,13 +170,11 @@ async function isInGuild(guildId) {
   }
 }
 
-// get bot invite url
 function getBotInviteUrl() {
-  const permissions = '117760'; // view channels, send messages, embed links, attach files, read message history
+  const permissions = '117760';
   return `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&permissions=${permissions}&scope=bot`;
 }
 
-// get oauth url for adding bot to server
 function getOAuthUrl(state) {
   const params = new URLSearchParams({
     client_id: process.env.DISCORD_CLIENT_ID,

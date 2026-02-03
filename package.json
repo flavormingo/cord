@@ -1,6 +1,6 @@
 {
   "name": "cord",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "a bidirectional message relay to bridge slack and discord text channels",
   "main": "src/index.js",
   "scripts": {

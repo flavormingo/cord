@@ -14,23 +14,20 @@ const authRoutes = require('./routes/auth');
 const apiRoutes = require('./routes/api');
 const slackEventsRoutes = require('./routes/slack-events');
 
-// set service references to avoid circular dependency
 discordService.setSlackService(slackService);
 slackService.setDiscordService(discordService);
 
 const app = express();
 
-// trust proxy for https behind reverse proxy
 app.set('trust proxy', 1);
 
-// session middleware with persistent SQLite store
 app.use(cookieParser());
 app.use(session({
   store: new SqliteStore({
     client: db.db,
     expired: {
       clear: true,
-      intervalMs: 900000, // 15 minutes
+      intervalMs: 900000,
     },
   }),
   secret: process.env.SESSION_SECRET,
@@ -39,11 +36,10 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    maxAge: 30 * 24 * 60 * 60 * 1000,
   },
 }));
 
-// create user session if not exists
 app.use((req, res, next) => {
   if (!req.session.userId) {
     const userId = uuidv4();
@@ -53,25 +49,19 @@ app.use((req, res, next) => {
   next();
 });
 
-// slack events needs raw body, mount before json middleware
 app.use('/slack/events', slackEventsRoutes);
 
-// json body parser for other routes
 app.use(express.json());
 
-// static files
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// routes
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
 
-// serve index for all other routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-// cleanup old processed messages every hour
 setInterval(() => {
   try {
     db.processedMessages.cleanup();
@@ -80,16 +70,13 @@ setInterval(() => {
   }
 }, 60 * 60 * 1000);
 
-// start server
 const PORT = process.env.PORT || 3000;
 
 async function start() {
   try {
-    // initialize discord bot
     await discordService.init();
     console.log('discord bot initialized');
 
-    // start express server
     app.listen(PORT, () => {
       console.log(`cord running on port ${PORT}`);
     });

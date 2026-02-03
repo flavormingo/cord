@@ -6,7 +6,6 @@ const discordService = require('../services/discord');
 
 const router = express.Router();
 
-// slack oauth start
 router.get('/slack', (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/');
@@ -17,7 +16,6 @@ router.get('/slack', (req, res) => {
   res.redirect(slackService.getOAuthUrl(state));
 });
 
-// slack oauth callback
 router.get('/slack/callback', async (req, res) => {
   try {
     const { code, state, error } = req.query;
@@ -38,7 +36,6 @@ router.get('/slack/callback', async (req, res) => {
       return res.redirect('/?error=invalid_user');
     }
 
-    // exchange code for token
     const result = await slackService.exchangeCode(code);
 
     if (!result.ok) {
@@ -46,7 +43,6 @@ router.get('/slack/callback', async (req, res) => {
       return res.redirect('/?error=slack_token_failed');
     }
 
-    // save workspace (upsert)
     const workspaceId = uuidv4();
     db.slackWorkspaces.create(
       workspaceId,
@@ -57,7 +53,6 @@ router.get('/slack/callback', async (req, res) => {
       result.bot_user_id
     );
 
-    // transfer any existing mappings to this user
     const workspace = db.slackWorkspaces.getByTeam(result.team.id);
     if (workspace) {
       db.slackWorkspaces.updateMappingsUser(userId, workspace.id);
@@ -70,7 +65,6 @@ router.get('/slack/callback', async (req, res) => {
   }
 });
 
-// discord oauth start
 router.get('/discord', (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/');
@@ -81,7 +75,6 @@ router.get('/discord', (req, res) => {
   res.redirect(discordService.getOAuthUrl(state));
 });
 
-// discord oauth callback
 router.get('/discord/callback', async (req, res) => {
   try {
     const { guild_id, state, error } = req.query;
@@ -106,13 +99,11 @@ router.get('/discord/callback', async (req, res) => {
       return res.redirect('/?error=no_guild');
     }
 
-    // get guild info from bot
     const guild = await discordService.getGuild(guild_id);
     if (!guild) {
       return res.redirect('/?error=guild_not_found');
     }
 
-    // save guild (upsert)
     const guildDbId = uuidv4();
     db.discordGuilds.create(
       guildDbId,
@@ -121,7 +112,6 @@ router.get('/discord/callback', async (req, res) => {
       guild.name
     );
 
-    // transfer any existing mappings to this user
     const savedGuild = db.discordGuilds.getByGuildId(guild.id);
     if (savedGuild) {
       db.discordGuilds.updateMappingsUser(userId, savedGuild.id);

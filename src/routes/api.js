@@ -6,7 +6,6 @@ const discordService = require('../services/discord');
 
 const router = express.Router();
 
-// middleware to require auth
 function requireAuth(req, res, next) {
   if (!req.session.userId) {
     return res.status(401).json({ error: 'unauthorized' });
@@ -14,7 +13,6 @@ function requireAuth(req, res, next) {
   next();
 }
 
-// get connected workspaces
 router.get('/workspaces', requireAuth, (req, res) => {
   const slackWorkspaces = db.slackWorkspaces.getByUser(req.session.userId);
   const discordGuilds = db.discordGuilds.getByUser(req.session.userId);
@@ -33,7 +31,6 @@ router.get('/workspaces', requireAuth, (req, res) => {
   });
 });
 
-// get slack channels
 router.get('/slack/:workspaceId/channels', requireAuth, async (req, res) => {
   try {
     const workspace = db.slackWorkspaces.get(req.params.workspaceId);
@@ -49,7 +46,6 @@ router.get('/slack/:workspaceId/channels', requireAuth, async (req, res) => {
   }
 });
 
-// get discord channels
 router.get('/discord/:guildId/channels', requireAuth, async (req, res) => {
   try {
     const guild = db.discordGuilds.get(req.params.guildId);
@@ -65,13 +61,11 @@ router.get('/discord/:guildId/channels', requireAuth, async (req, res) => {
   }
 });
 
-// get channel mappings
 router.get('/mappings', requireAuth, (req, res) => {
   const mappings = db.channelMappings.getByUser(req.session.userId);
   res.json(mappings);
 });
 
-// create channel mapping
 router.post('/mappings', requireAuth, (req, res) => {
   try {
     const {
@@ -83,19 +77,16 @@ router.post('/mappings', requireAuth, (req, res) => {
       discordChannelName,
     } = req.body;
 
-    // validate workspace ownership
     const workspace = db.slackWorkspaces.get(slackWorkspaceId);
     if (!workspace || workspace.user_id !== req.session.userId) {
       return res.status(404).json({ error: 'workspace not found' });
     }
 
-    // validate guild ownership
     const guild = db.discordGuilds.get(discordGuildId);
     if (!guild || guild.user_id !== req.session.userId) {
       return res.status(404).json({ error: 'guild not found' });
     }
 
-    // create mapping
     const id = uuidv4();
     db.channelMappings.create(
       id,
@@ -127,7 +118,6 @@ router.post('/mappings', requireAuth, (req, res) => {
   }
 });
 
-// delete channel mapping
 router.delete('/mappings/:id', requireAuth, (req, res) => {
   try {
     const mapping = db.channelMappings.get(req.params.id);
@@ -143,7 +133,6 @@ router.delete('/mappings/:id', requireAuth, (req, res) => {
   }
 });
 
-// toggle channel mapping
 router.patch('/mappings/:id', requireAuth, (req, res) => {
   try {
     const mapping = db.channelMappings.get(req.params.id);
@@ -160,7 +149,6 @@ router.patch('/mappings/:id', requireAuth, (req, res) => {
   }
 });
 
-// disconnect slack workspace
 router.delete('/slack/:workspaceId', requireAuth, (req, res) => {
   try {
     const workspace = db.slackWorkspaces.get(req.params.workspaceId);
@@ -176,7 +164,6 @@ router.delete('/slack/:workspaceId', requireAuth, (req, res) => {
   }
 });
 
-// disconnect discord guild
 router.delete('/discord/:guildId', requireAuth, (req, res) => {
   try {
     const guild = db.discordGuilds.get(req.params.guildId);
